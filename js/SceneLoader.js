@@ -98,6 +98,11 @@ MASC.SceneLoader.prototype = {
     object.rotation.copy( euler_angle );
     object.children[0].material.color.copy(color);
 
+    object.traverse(function (obj) {
+      obj.castShadow = true;
+      obj.receiveShadow = false;
+    }); 
+
     //TODO(zxi) set properties
     this.scene.add( object );
     this.models_loaded ++;
@@ -159,7 +164,6 @@ MASC.SceneLoader.prototype = {
     position.z = parseFloat(args['tz']);
 
     console.log('position = ' + position);
-    
 
     if(type == "spot") {
       light = new THREE.SpotLight();
@@ -167,12 +171,20 @@ MASC.SceneLoader.prototype = {
     }
 
     light.castShadow = true;
+    light.shadowDarkness = 0.8;
     light.shadowMapWidth = 1024;
     light.shadowMapHeight = 1024;
 
-    light.shadowCameraNear = 1;
-    light.shadowCameraFar = 10000;
-    light.shadowCameraFov = 30;
+    light.shadowCameraNear = 100;
+    light.shadowCameraFar = 2000;
+    light.shadowCameraFov = 60;
+
+    light.shadowCameraRight    =  5000;
+    light.shadowCameraLeft     = -5000;
+    light.shadowCameraTop      =  5000;
+    light.shadowCameraBottom   = -5000;
+
+    light.shadowCameraVisible = true;
 
     scene.add(light);
     
@@ -262,9 +274,11 @@ MASC.SceneLoader.prototype = {
 
   addWall: function(position, size, color, texture) {
     var geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
+    var material = new THREE.MeshLambertMaterial( {color: 0x00ffff} );
     var wall = new THREE.Mesh( geometry, material );
     wall.position.copy(position);
+    wall.castShadow = false;
+    wall.receiveShadow = true;
     this.scene.add( wall );
   },
 
