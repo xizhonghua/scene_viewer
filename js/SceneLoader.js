@@ -166,9 +166,12 @@ MASC.SceneLoader.prototype = {
     console.log('position = ' + position);
 
     if(type == "spot") {
-      light = new THREE.SpotLight();
-      light.position.copy(position);   
+      light = new THREE.SpotLight();      
+    } else if(type == "directional") {
+      light = new THREE.DirectionalLight( 0xffffff, 0.5 );
     }
+
+    light.position.copy(position);
 
     light.castShadow = true;
     light.shadowDarkness = 0.8;
