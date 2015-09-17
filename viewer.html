@@ -52,8 +52,8 @@
     container = document.createElement( 'div' );
     document.body.appendChild( container );
 
-    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-    camera.position.z = 100;
+    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 100000 );
+    camera.position.z = 10000;
 
     controls = new THREE.TrackballControls( camera );
 
@@ -114,24 +114,7 @@
 
     // model
 
-    var loader = new THREE.OBJLoader( manager );
-    loader.load( 'models/male02.obj', function ( object ) {
-
-      object.traverse( function ( child ) {
-
-        // if ( child instanceof THREE.Mesh ) {
-
-        //   child.material.map = texture;
-
-        // }
-
-      } );
-
-      object.position.y = - 80;
-      scene.add( object );
-
-    }, onProgress, onError );
-
+  
     var loader = new MASC.SceneLoader(manager);
     loader.load('scene/best_scene.r', scene, function(){
       //TODO
@@ -179,7 +162,6 @@
 
     requestAnimationFrame( animate );
     controls.update();
-    render();
 
   }
 
