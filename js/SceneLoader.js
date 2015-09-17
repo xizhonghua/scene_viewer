@@ -30,7 +30,10 @@ MASC.SceneLoader = function( manager ) {
   this.models_cached = {};
   this.models_queue = {};
 
-  this.parsed = false;
+  this.loaded = false;
+
+  this.boundingBox = new THREE.Box3();
+  this.walls = {};
 };
 
 MASC.SceneLoader.prototype = {
@@ -38,7 +41,7 @@ MASC.SceneLoader.prototype = {
 
  
 
-  onObjectProgress : function ( xhr ) {
+  onObjProgress : function ( xhr ) {
       if ( xhr.lengthComputable ) {
         var percentComplete = xhr.loaded / xhr.total * 100;
         console.log( Math.round(percentComplete, 2) + '% downloaded' );
@@ -66,7 +69,7 @@ MASC.SceneLoader.prototype = {
       this.addObj(object.clone(), queue[i]);      
     }
 
-    if(this.parsed == true && this.models_to_load == this.models_loaded) {
+    if(this.loaded == true && this.models_to_load == this.models_loaded) {
       this.onLoadCallback();
     }
   },
@@ -76,33 +79,21 @@ MASC.SceneLoader.prototype = {
     var euler_angle = new THREE.Euler( 0, 0, 0, 'XYZ' );
     var color = new THREE.Color( 0, 0, 0 );
 
-    for(var i=0;i<args.length;++i) {
-      var kv = args[i].split('=');
-      if(kv.length==1) continue;
-      var key = kv[0];
-      var val = kv[1];
-      if(key == "tx") {
-        object.position.x = parseFloat(val);
-      } else if(key == "ty") {
-        object.position.y = parseFloat(val);
-      } else if(key == "tz") {
-        object.position.z = parseFloat(val);
-      } else if(key == "scale") {
-        object.scale.x = object.scale.y = object.scale.z = parseFloat(val);
-      } else if(key == "rx") {
-        euler_angle.x = parseFloat(val);
-      } else if(key == "ry") {
-        euler_angle.y = parseFloat(val);
-      } else if(key == "rz") {
-        euler_angle.z = parseFloat(val);
-      } else if(key == "cr") {
-        color.r = parseFloat(val);
-      } else if(key == "cg") {
-        color.g = parseFloat(val);
-      } else if(key == "cb") {
-        color.b = parseFloat(val);
-      }
-    }
+    args = this.parseArgs(args);
+    
+    object.position.x = parseFloat(args['tx']);    
+    object.position.y = parseFloat(args['ty']);
+    object.position.z = parseFloat(args['tz']);
+    
+    object.scale.x = object.scale.y = object.scale.z = parseFloat(args['scale']);      
+    
+    euler_angle.x = parseFloat(args['rx']);    
+    euler_angle.y = parseFloat(args['ry']);      
+    euler_angle.z = parseFloat(args['rz']);
+      
+    color.r = parseFloat(args['cr']);      
+    color.g = parseFloat(args['cg']);    
+    color.b = parseFloat(args['cb']);
 
     object.rotation.copy( euler_angle );
     object.children[0].material.color.copy(color);
@@ -110,10 +101,29 @@ MASC.SceneLoader.prototype = {
     //TODO(zxi) set properties
     this.scene.add( object );
     this.models_loaded ++;
-    console.log('total models added = ' + this.models_loaded);
+    // console.log('total models added = ' + this.models_loaded);
   },
 
   onObjectError : function ( xhr ) { },  
+
+  // args = ['key1', 'key2=val2', 'key3=val3']
+  // return { 
+  //  'key1' : true, 
+  //  'key2' : val2, 
+  //  'key3' : val3
+  // }
+  parseArgs: function ( args ) {
+    var output = {};
+    for(var i=0;i<args.length;++i) {
+      var kv = args[i].split('=');
+      if(kv.length==1) {
+        output[kv[0]] = true;
+      } else {
+        output[kv[0]] = kv[1];
+      }
+    }
+    return output;
+  },
 
   load: function( url, scene, onLoad, onProgress, onError ) {
     var scope = this;
@@ -124,6 +134,8 @@ MASC.SceneLoader.prototype = {
     loader.load( url, function ( text ) {
 
       scope.parse( text );
+      scope.createWalls();
+      scope.loaded = true;
 
     }, onProgress, onError );
   },
@@ -134,14 +146,42 @@ MASC.SceneLoader.prototype = {
 
   lightHandler: function( args ) {
     console.log('lightHandler');
+
+    args = this.parseArgs(args);
+
+    var light = null;
+    var type = args['type'];
+
+    var position = new THREE.Vector3(0,0,0);
+
+    position.x = parseFloat(args['tx']);
+    position.y = parseFloat(args['ty']);
+    position.z = parseFloat(args['tz']);
+
+    console.log('position = ' + position);
+    
+
+    if(type == "spot") {
+      light = new THREE.SpotLight();
+      light.position.copy(position);   
+    }
+
+    light.castShadow = true;
+    light.shadowMapWidth = 1024;
+    light.shadowMapHeight = 1024;
+
+    light.shadowCameraNear = 1;
+    light.shadowCameraFar = 10000;
+    light.shadowCameraFov = 30;
+
+    scene.add(light);
+    
   },
 
   meshHandler: function( args ) {    
 
     var path = args[0];
-    var scope = this;
-
-    console.log('meshHandler path = ' + path);
+    var scope = this;    
 
     args.shift();
 
@@ -176,7 +216,56 @@ MASC.SceneLoader.prototype = {
   },
 
   bboxHandler: function( args ) {
-    console.log('bboxHandler');
+    args = this.parseArgs(args);
+    var offset = parseFloat(args['offset'] || '0.0');
+    if(args['left']) {
+      this.boundingBox.min.x = offset;
+      this.walls['left'] = args;
+    }
+    if(args['right']) {
+      this.boundingBox.max.x = offset;
+      this.walls['right'] = args;
+    }
+    if(args['top']) {
+      this.boundingBox.max.y = offset;      
+    }
+    if(args['bottom']) {      
+      this.boundingBox.min.y = offset;
+      this.walls['bottom'] = args;
+    }
+    if(args['front']) {
+      this.boundingBox.max.z = offset;
+    }
+    if(args['back']) {
+      this.boundingBox.min.z = offset;
+      this.walls['back'] = args;
+    }
+  },
+
+  createWalls: function() {
+    var thickness = 1;
+    var bmin = this.boundingBox.min;
+    var bmax = this.boundingBox.max;
+    var dimx = bmax.x - bmin.x;
+    var dimy = bmax.y - bmin.y;
+    var dimz = bmax.z - bmin.z;
+    
+    // bottom
+    this.addWall(new THREE.Vector3(0, 0, dimz/2), new THREE.Vector3(dimx, thickness, dimz));
+    // left
+    this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2), new THREE.Vector3(thickness, dimy, dimz));
+    // right
+    this.addWall(new THREE.Vector3(bmin.x + dimx, dimy/2, dimz/2), new THREE.Vector3(thickness, dimy, dimz));
+    // back
+    this.addWall(new THREE.Vector3(0, dimy/2, 0), new THREE.Vector3(dimx, dimy, thickness));
+  },
+
+  addWall: function(position, size, color, texture) {
+    var geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
+    var wall = new THREE.Mesh( geometry, material );
+    wall.position.copy(position);
+    this.scene.add( wall );
   },
 
 
@@ -214,9 +303,10 @@ MASC.SceneLoader.prototype = {
 
     console.time( 'SceneLoader' );
 
-    this.parsed = true;
+    console.dir(this.boundingBox);    
+
+    this.loaded = true;
 
     return null;
   }
 }
-
