@@ -116,11 +116,11 @@
 
   
     var loader = new MASC.SceneLoader(manager);
-    loader.load('scene/best_scene.r', scene, function(){
-      //TODO
+    loader.load('scene/spot-girl-120.r', scene, function(){
+      render();
     });
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     container.appendChild( renderer.domElement );

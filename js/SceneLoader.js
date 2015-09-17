@@ -29,6 +29,8 @@ MASC.SceneLoader = function( manager ) {
   this.models_requested =  {};
   this.models_cached = {};
   this.models_queue = {};
+
+  this.parsed = false;
 };
 
 MASC.SceneLoader.prototype = {
@@ -63,11 +65,16 @@ MASC.SceneLoader.prototype = {
     for(var i=0;i<queue.length;++i) {
       this.addObj(object.clone(), queue[i]);      
     }
+
+    if(this.parsed == true && this.models_to_load == this.models_loaded) {
+      this.onLoadCallback();
+    }
   },
 
   addObj : function(object, args) {
 
     var euler_angle = new THREE.Euler( 0, 0, 0, 'XYZ' );
+    var color = new THREE.Color( 0, 0, 0 );
 
     for(var i=0;i<args.length;++i) {
       var kv = args[i].split('=');
@@ -88,10 +95,17 @@ MASC.SceneLoader.prototype = {
         euler_angle.y = parseFloat(val);
       } else if(key == "rz") {
         euler_angle.z = parseFloat(val);
+      } else if(key == "cr") {
+        color.r = parseFloat(val);
+      } else if(key == "cg") {
+        color.g = parseFloat(val);
+      } else if(key == "cb") {
+        color.b = parseFloat(val);
       }
     }
 
     object.rotation.copy( euler_angle );
+    object.children[0].material.color.copy(color);
 
     //TODO(zxi) set properties
     this.scene.add( object );
@@ -199,6 +213,8 @@ MASC.SceneLoader.prototype = {
     }
 
     console.time( 'SceneLoader' );
+
+    this.parsed = true;
 
     return null;
   }
