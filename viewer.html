@@ -27,6 +27,7 @@
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
 <script src="js/OBJLoader.js"></script>
+<script src="js/SceneLoader.js"></script>
 <script src="js/TrackballControls.js"></script>
 <script>
   var container;
@@ -43,6 +44,7 @@
 
   init();
   animate();
+  render();
 
 
   function init() {
@@ -55,7 +57,7 @@
 
     controls = new THREE.TrackballControls( camera );
 
-    controls.rotateSpeed = 1.0;
+    controls.rotateSpeed = 2.0;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
 
@@ -130,7 +132,10 @@
 
     }, onProgress, onError );
 
-    //
+    var loader = new MASC.SceneLoader(manager);
+    loader.load('scene/best_scene.r', scene, function(){
+      //TODO
+    });
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -141,7 +146,7 @@
 
     //
 
-    window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener( 'resize', onWindowResize, false );    
 
   }
 
@@ -156,6 +161,8 @@
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     controls.handleResize();
+
+    render();
 
   }
 
@@ -172,7 +179,7 @@
 
     requestAnimationFrame( animate );
     controls.update();
-    // render();
+    render();
 
   }
 
