@@ -2,7 +2,7 @@ image
 n=30 width=480 height=480 vertex_shader=shaders/pointlight_shadow.vert fragment_shader=shaders/pointlight_shadow.frag
 # lights
 light 1
-type=directional tx=200 ty=800 tz=6000 ar=0.1 ag=0.1 ab=0.1 catt=1 latt=5e-05 qatt=0 cutoff=10 exp=1 sdx=-1 sdy=-1 sdz=-1 smwidth=1024 smheight=1024 scfov=1.0472 scnear=0 scfar=10000
+type=directional tx=200 ty=800 tz=6000 ar=0.1 ag=0.1 ab=0.1 catt=1 latt=5e-05 qatt=0 cutoff=10 exp=1 sdx=-1 sdy=-1 sdz=-1 smwidth=1024 smheight=1024 scfov=1.0472 scnear=0 scfar=8000
 # bounding box
 bbox 6
 left offset=-150 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=1

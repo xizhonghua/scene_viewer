@@ -199,6 +199,10 @@ MASC.SceneLoader.prototype = {
     light.shadowCameraFar = args.getFloat('scfar', 2000);
     light.shadowCameraFov = args.getFloat('scfov', 30/180*Math.PI) * 180 / Math.PI * 10;
 
+    console.log('light.shadowCameraNear = ' + light.shadowCameraNear);
+    console.log('light.shadowCameraFar = ' + light.shadowCameraFar);
+    console.log('light.shadowCameraFov = ' + light.shadowCameraFov);
+
     light.shadowCameraRight    =  2000;
     light.shadowCameraLeft     = -2000;
     light.shadowCameraTop      =  2000;
