@@ -127,6 +127,29 @@ MASC.SceneLoader.prototype = {
         output[kv[0]] = kv[1];
       }
     }
+
+    output.getInt = function(key, default_val) {
+      if (key in output) {
+        return parseInt(output[key]);
+      }
+      return default_val;
+    }
+
+    output.getFloat = function(key, default_val) {
+      if (key in output) {
+        return parseFloat(output[key]);
+      }
+      return default_val; 
+    }
+
+    output.getValue = function(key, default_val) {
+      if (key in output) {
+        return output[key];
+      }
+      return default_val;  
+    }
+
+
     return output;
   },
 
@@ -155,15 +178,7 @@ MASC.SceneLoader.prototype = {
     args = this.parseArgs(args);
 
     var light = null;
-    var type = args['type'];
-
-    var position = new THREE.Vector3(0,0,0);
-
-    position.x = parseFloat(args['tx']);
-    position.y = parseFloat(args['ty']);
-    position.z = parseFloat(args['tz']);
-
-    console.log('position = ' + position);
+    var type = args['type'];   
 
     if(type == "spot") {
       light = new THREE.SpotLight();      
@@ -171,21 +186,23 @@ MASC.SceneLoader.prototype = {
       light = new THREE.DirectionalLight( 0xffffff, 0.5 );
     }
 
-    light.position.copy(position);
+    light.position.x = args.getFloat('tx');
+    light.position.y = args.getFloat('ty');
+    light.position.z = args.getFloat('tz');    
 
     light.castShadow = true;
     light.shadowDarkness = 0.8;
-    light.shadowMapWidth = 1024;
-    light.shadowMapHeight = 1024;
+    light.shadowMapWidth = args.getFloat('smwidth', 1024);
+    light.shadowMapHeight = args.getFloat('smheight', 1024);
 
-    light.shadowCameraNear = 100;
-    light.shadowCameraFar = 2000;
-    light.shadowCameraFov = 60;
+    light.shadowCameraNear = args.getFloat('scnear', 200);
+    light.shadowCameraFar = args.getFloat('scfar', 2000);
+    light.shadowCameraFov = args.getFloat('scfov', 30/180*Math.PI) * 180 / Math.PI * 10;
 
-    light.shadowCameraRight    =  5000;
-    light.shadowCameraLeft     = -5000;
-    light.shadowCameraTop      =  5000;
-    light.shadowCameraBottom   = -5000;
+    light.shadowCameraRight    =  2000;
+    light.shadowCameraLeft     = -2000;
+    light.shadowCameraTop      =  2000;
+    light.shadowCameraBottom   = -2000;
 
     light.shadowCameraVisible = true;
 
@@ -266,18 +283,18 @@ MASC.SceneLoader.prototype = {
     var dimz = bmax.z - bmin.z;
     
     // bottom
-    this.addWall(new THREE.Vector3(0, 0, dimz/2), new THREE.Vector3(dimx, thickness, dimz));
+    this.addWall(new THREE.Vector3(bmin.x + dimx/2, 0, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz));
     // left
-    this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2), new THREE.Vector3(thickness, dimy, dimz));
+    this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
     // right
-    this.addWall(new THREE.Vector3(bmin.x + dimx, dimy/2, dimz/2), new THREE.Vector3(thickness, dimy, dimz));
+    this.addWall(new THREE.Vector3(bmin.x + dimx, dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
     // back
-    this.addWall(new THREE.Vector3(0, dimy/2, 0), new THREE.Vector3(dimx, dimy, thickness));
+    this.addWall(new THREE.Vector3(bmin.x + dimx/2, dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
   },
 
   addWall: function(position, size, color, texture) {
     var geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    var material = new THREE.MeshLambertMaterial( {color: 0x00ffff} );
+    var material = new THREE.MeshLambertMaterial( {color: color || 0x00ffff} );
     var wall = new THREE.Mesh( geometry, material );
     wall.position.copy(position);
     wall.castShadow = false;

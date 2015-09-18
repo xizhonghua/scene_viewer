@@ -25,6 +25,10 @@
     </style>
 </head>
 <body>
+<div id="info">
+  
+</div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r72/three.min.js"></script>
 <script src="js/OBJLoader.js"></script>
 <script src="js/SceneLoader.js"></script>
@@ -41,11 +45,33 @@
   var windowHalfX = window.innerWidth / 2;
   var windowHalfY = window.innerHeight / 2;
 
+  init_links(function(){
+    init();
+    animate();
+    render();  
+  });
+  
 
-  init();
-  animate();
-  render();
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
 
+  function init_links(callback) {
+    var href = window.location.href.split('?')[0];
+    $.getJSON('scene/scene.json', function(scenes){
+      for(var i=0;i<scenes.length;++i) {
+        if(i>0) $("#info").append(" | ");
+        var scene = scenes[i];
+        $('<a></a>').attr("id", "link-" + scene.name).html(scene.name).attr("href", href + "?scene=scene/" + scene.url).appendTo("#info");
+
+      }
+      callback();
+    });
+    
+  }
 
   function init() {
 
@@ -103,7 +129,6 @@
     var onError = function ( xhr ) {
     };
 
-
     // var loader = new THREE.ImageLoader( manager );
     // loader.load( 'textures/UV_Grid_Sm.jpg', function ( image ) {
 
@@ -114,9 +139,13 @@
 
     // model
 
+    var scene_path = getParameterByName('scene') || 'scene/spot-girl-120.r';
+
+    console.log('scene_path = ' + scene_path);
+
   
     var loader = new MASC.SceneLoader(manager);
-    loader.load('scene/spot-girl-120.r', scene, function(){
+    loader.load(scene_path, scene, function(){
       render();
     });
 
