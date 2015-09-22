@@ -87,9 +87,9 @@ MASC.SceneLoader.prototype = {
     
     object.scale.x = object.scale.y = object.scale.z = parseFloat(args['scale']);      
     
-    euler_angle.x = parseFloat(args['rx']);    
-    euler_angle.y = parseFloat(args['ry']);      
-    euler_angle.z = parseFloat(args['rz']);
+    euler_angle.x = parseFloat(args['rx']) * 180 / Math.PI;    
+    euler_angle.y = parseFloat(args['ry']) * 180 / Math.PI;
+    euler_angle.z = parseFloat(args['rz']) * 180 / Math.PI;
       
     color.r = parseFloat(args['cr']);      
     color.g = parseFloat(args['cg']);    
@@ -197,7 +197,7 @@ MASC.SceneLoader.prototype = {
 
     light.shadowCameraNear = args.getFloat('scnear', 200);
     light.shadowCameraFar = args.getFloat('scfar', 2000);
-    light.shadowCameraFov = args.getFloat('scfov', 30/180*Math.PI) * 180 / Math.PI * 10;
+    light.shadowCameraFov = args.getFloat('scfov', 30);
 
     console.log('light.shadowCameraNear = ' + light.shadowCameraNear);
     console.log('light.shadowCameraFar = ' + light.shadowCameraFar);
