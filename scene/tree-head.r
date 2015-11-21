@@ -2,11 +2,11 @@ image
 n=30 width=512 height=512 vertex_shader=shaders/pointlight_shadow.vert fragment_shader=shaders/pointlight_shadow.frag
 # lights
 light 1
-type=spot tx=200 ty=800 tz=1800 ar=0.1 ag=0.1 ab=0.1 catt=1 latt=0.001 qatt=0 cutoff=10 exp=1 sdx=-1 sdy=-1 sdz=-1 smwidth=1024 smheight=1024 scfov=60 scnear=100 scfar=2000
+type=spot tx=200 ty=800 tz=1800 ar=0.1 ag=0.1 ab=0.1 catt=1 latt=0.001 qatt=0 cutoff=10 exp=1 sdx=-1 sdy=-1 sdz=-1 smwidth=1024 smheight=1024 scfov=60 scnear=250 scfar=2100
 # bounding box
 bbox 6
-left offset=-600 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=1
-right offset=600 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=1
+left invisible offset=-600 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=1
+right invisible offset=600 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=1
 bottom cr=1 cg=0.5 cb=0.5 sr=0 sg=0 sb=0 er=0 eg=0 eb=0 shininess=1
 top invisible offset=1000 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=128
 back offset=-100 cr=1 cg=1 cb=1 sr=1 sg=1 sb=1 er=0 eg=0 eb=0 shininess=1 text_c=texture/tree2-head-only.png

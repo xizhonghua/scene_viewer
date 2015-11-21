@@ -54,11 +54,30 @@ MASC.SceneLoader.prototype = {
 
     var geometry = object.children[0].geometry;
 
-    // geometry.center ();
-    geometry.computeBoundingSphere();
-    var center = geometry.boundingSphere.center;
-    var scale = 1.0 / geometry.boundingSphere.radius;
-    geometry.translate(-center.x, -center.y, -center.z);
+    // Compute COM
+    var com = new THREE.Vector3(0,0,0);
+
+    var vs = geometry.attributes.position.array;
+    for(var i=0;i<vs.length;i+=3) {
+      com.x += vs[i];
+      com.y += vs[i+1];
+      com.z += vs[i+2];
+    }
+
+    com.divideScalar(vs.length/3);
+
+    var r = 0.0;
+    var p = new THREE.Vector3(0,0,0);
+    for(var i=0;i<vs.length;i+=3) {
+      p.x = vs[i];
+      p.y = vs[i+1];
+      p.z = vs[i+2];
+      var dist = p.distanceTo ( com );
+      if(dist > r) r = dist;
+    }
+        
+    var scale = 1.0 / r;
+    geometry.translate(-com.x, -com.y, -com.z);
     geometry.scale(scale, scale, scale);
     geometry.computeVertexNormals();
 
@@ -197,7 +216,7 @@ MASC.SceneLoader.prototype = {
 
     light.shadowCameraNear = args.getFloat('scnear', 200);
     light.shadowCameraFar = args.getFloat('scfar', 2000);
-    light.shadowCameraFov = args.getFloat('scfov', 30);
+    light.shadowCameraFov = args.getFloat('scfov', 60);
 
     console.log('light.shadowCameraNear = ' + light.shadowCameraNear);
     console.log('light.shadowCameraFar = ' + light.shadowCameraFar);
@@ -208,7 +227,7 @@ MASC.SceneLoader.prototype = {
     light.shadowCameraTop      =  2000;
     light.shadowCameraBottom   = -2000;
 
-    light.shadowCameraVisible = true;
+    // light.shadowCameraVisible = true;
 
     scene.add(light);
     
@@ -282,18 +301,18 @@ MASC.SceneLoader.prototype = {
     var thickness = 1;
     var bmin = this.boundingBox.min;
     var bmax = this.boundingBox.max;
-    var dimx = bmax.x - bmin.x;
-    var dimy = bmax.y - bmin.y;
-    var dimz = bmax.z - bmin.z;
+    var dimx = (bmax.x - bmin.x)*3;
+    var dimy = (bmax.y - bmin.y)*3;
+    var dimz = (bmax.z - bmin.z)*3;
     
     // bottom
-    this.addWall(new THREE.Vector3(bmin.x + dimx/2, 0, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz));
+    this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, 0, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz),0xCC6666);
     // left
-    this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
+    // this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
     // right
-    this.addWall(new THREE.Vector3(bmin.x + dimx, dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
+    this.addWall(new THREE.Vector3(bmin.x*3 + dimx, dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
     // back
-    this.addWall(new THREE.Vector3(bmin.x + dimx/2, dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
+    this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
   },
 
   addWall: function(position, size, color, texture) {
