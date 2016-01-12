@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MASC Scene Viewer</title>
+  <title>Shadow Art Viewer</title>
   <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
@@ -186,9 +186,7 @@
     mouseX = ( event.clientX - windowHalfX ) / 2;
     mouseY = ( event.clientY - windowHalfY ) / 2;
 
-  }
-
-  //
+  }  
 
   function animate() {
 
@@ -198,14 +196,7 @@
   }
 
   function render() {
-
-    // camera.position.x += ( mouseX - camera.position.x ) * .05;
-    // camera.position.y += ( - mouseY - camera.position.y ) * .05;
-
-    // camera.lookAt( scene.position );
-
     renderer.render( scene, camera );
-
   }
 </script>
 </body>
