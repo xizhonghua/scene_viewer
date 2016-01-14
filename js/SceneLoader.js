@@ -96,7 +96,8 @@ MASC.SceneLoader.prototype = {
   addObj : function(object, args) {
 
     var euler_angle = new THREE.Euler( 0, 0, 0, 'XYZ' );
-    var color = new THREE.Color( 0, 0, 0 );
+    var color = new THREE.Color( 0, 0, 0 );  
+    var ec = new THREE.Color( 0, 0, 0 );
 
     args = this.parseArgs(args);
     
@@ -106,9 +107,9 @@ MASC.SceneLoader.prototype = {
     
     object.scale.x = object.scale.y = object.scale.z = parseFloat(args['scale']);      
     
-    euler_angle.x = parseFloat(args['rx']) * 180 / Math.PI;    
-    euler_angle.y = parseFloat(args['ry']) * 180 / Math.PI;
-    euler_angle.z = parseFloat(args['rz']) * 180 / Math.PI;
+    euler_angle.x = parseFloat(args['rx']);
+    euler_angle.y = parseFloat(args['ry']);
+    euler_angle.z = parseFloat(args['rz']);    
       
     color.r = parseFloat(args['cr']);      
     color.g = parseFloat(args['cg']);    
@@ -304,15 +305,25 @@ MASC.SceneLoader.prototype = {
     var dimx = (bmax.x - bmin.x)*3;
     var dimy = (bmax.y - bmin.y)*3;
     var dimz = (bmax.z - bmin.z)*3;
+    var bottom_color = 
     
+    // // bottom
+    // this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, 0, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz),0xCC6666);
+    // // left
+    // // this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
+    // // right
+    // this.addWall(new THREE.Vector3(bmin.x*3 + dimx, dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
+    // // back
+    // this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
+
     // bottom
-    this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, 0, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz),0xCC6666);
+    this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, bmin.y*3, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz),0xCC6666);
     // left
     // this.addWall(new THREE.Vector3(bmin.x , dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
     // right
-    this.addWall(new THREE.Vector3(bmin.x*3 + dimx, dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
+    this.addWall(new THREE.Vector3(bmin.x*3 + dimx, bmin.y*3+dimy/2, dimz/2 + bmin.z), new THREE.Vector3(thickness, dimy, dimz));
     // back
-    this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
+    this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, bmin.y*3+dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
   },
 
   addWall: function(position, size, color, texture) {
