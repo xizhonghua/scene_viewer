@@ -19,4 +19,14 @@
       "name":"Ferris-Wheel",
       "url":"ferris-wheel.r"
     }
+    ,
+    {
+      "name":"Mickey",
+      "url":"mickey.r"
+    }
+    ,
+    {
+      "name":"Lady",
+      "url":"lady.r"
+    }
 ]
