@@ -97,7 +97,7 @@ MASC.SceneLoader.prototype = {
 
     var euler_angle = new THREE.Euler( 0, 0, 0, 'XYZ' );
     var color = new THREE.Color( 0, 0, 0 );  
-    var ec = new THREE.Color( 0, 0, 0 );
+    var emissive = new THREE.Color( 0, 0, 0 );
 
     args = this.parseArgs(args);
     
@@ -111,12 +111,22 @@ MASC.SceneLoader.prototype = {
     euler_angle.y = parseFloat(args['ry']);
     euler_angle.z = parseFloat(args['rz']);    
       
-    color.r = parseFloat(args['cr']);      
-    color.g = parseFloat(args['cg']);    
+    color.r = parseFloat(args['cr']);
+    color.g = parseFloat(args['cg']);
     color.b = parseFloat(args['cb']);
 
+    if ('er' in args)
+      emissive.r = parseFloat(args['er']);
+    if ('eg' in args)
+      emissive.g = parseFloat(args['eg']);
+    if ('eb' in args)
+      emissive.b = parseFloat(args['eb']);
+
     object.rotation.copy( euler_angle );
-    object.children[0].material.color.copy(color);
+
+    var material = object.children[0].material;
+    material.color.copy(color);
+    material.emissive.copy(emissive);
 
     object.traverse(function (obj) {
       obj.castShadow = true;
@@ -305,7 +315,7 @@ MASC.SceneLoader.prototype = {
     var dimx = (bmax.x - bmin.x)*3;
     var dimy = (bmax.y - bmin.y)*3;
     var dimz = (bmax.z - bmin.z)*3;
-    var bottom_color = 
+    // var bottom_color = 
     
     // // bottom
     // this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, 0, dimz/2 + bmin.z), new THREE.Vector3(dimx, thickness, dimz),0xCC6666);
@@ -326,9 +336,12 @@ MASC.SceneLoader.prototype = {
     this.addWall(new THREE.Vector3(bmin.x*3 + dimx/2, bmin.y*3+dimy/2, 0 + bmin.z), new THREE.Vector3(dimx, dimy, thickness), 0x999999);
   },
 
-  addWall: function(position, size, color, texture) {
+  addWall: function(position, size, color, emissive, texture) {
     var geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    var material = new THREE.MeshLambertMaterial( {color: color || 0x00ffff} );
+    var material = new THREE.MeshLambertMaterial({
+      color: color || 0x00ffff,
+      emissive: emissive || 0x000000
+    });
     var wall = new THREE.Mesh( geometry, material );
     wall.position.copy(position);
     wall.castShadow = false;
